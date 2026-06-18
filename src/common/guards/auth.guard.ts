@@ -1,12 +1,14 @@
 import {
   CanActivate,
   ExecutionContext,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import type { Request } from 'express';
 import { JwtPayload } from 'src/modules/auth/interfaces/jwt.interface';
 
+@Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
@@ -28,6 +30,9 @@ export class AuthGuard implements CanActivate {
       return true;
     } catch (err) {
       if (err instanceof TokenExpiredError) {
+      }
+      if (err instanceof UnauthorizedException) {
+        throw err;
       }
       throw new UnauthorizedException('Токен невалиден или истёк');
     }
