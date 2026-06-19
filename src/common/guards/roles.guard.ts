@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from 'src/generated/prisma/enums';
+import { Role } from '@prisma/client';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest(); 
+    const { user } = context.switchToHttp().getRequest();
 
     if (!user || !requiredRoles.includes(user.role)) {
       throw new ForbiddenException(`Нет прав для чтения и обработки данных!`);

@@ -15,11 +15,11 @@ import {
   ApiParam,
   ApiResponse,
 } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { CategoryEntity } from 'src/entities/category.entity';
-import { Role } from 'src/generated/prisma/enums';
 import { CategoriesService } from './categories.service';
 import { CategoriesDto } from './dto/categories.dto';
 

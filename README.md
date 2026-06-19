@@ -1,98 +1,134 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# 📝 Блог-платформа (API)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Данный проект представляет собой серверную часть платформы для ведения блогов. Система позволяет пользователям создавать статьи, распределять их по категориям, оставлять комментарии и лайкать.
 
-## Description
+**Вариант выполнения:** №2 (Блог-платформа).
+**Дополнительное задание:** Реализована система лайков к статьям и сортировка постов по популярности.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🚀 Функционал
 
-## Project setup
+- **Аутентификация и авторизация**: Регистрация, вход, обновление токенов (Refresh token в cookies) и разграничение прав доступа по ролям.
+- **Управление статьями**: CRUD-операции над постами с поддержкой черновиков и опубликованных материалов.
+- **Категории**: Создание и управление категориями для организации контента.
+- **Комментарии**: Возможность оставлять отзывы и обсуждать статьи.
+- **Система лайков**: Возможность поставить/убрать лайк, а также получение списка пользователей, лайкнувших пост.
+- **Поиск и фильтрация**: Пагинация, фильтрация по статусу и категории, сортировка по дате создания или количеству лайков (популярности).
 
-```bash
-$ yarn install
-```
+## 🛠 Стек технологий
 
-## Compile and run the project
+- **Язык**: TypeScript 5.7.3
+- **Фреймворк**: NestJS 11.0.17
+- **База данных**: PostgreSQL 17.2
+- **ORM**: Prisma 7.3.0
+- **Аутентификация**: JWT (JSON Web Tokens), bcrypt
+- **Документация**: Swagger (OpenAPI 3.0)
+- **Валидация**: class-validator, class-transformer
+
+## ⚙️ Инструкция по запуску
+
+### 1. Клонирование репозитория
 
 ```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+git clone <ссылка-на-репозиторий>
+cd <название-папки>
 ```
 
-## Run tests
+### 2. Установка зависимостей
 
 ```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+npm install
 ```
 
-## Deployment
+### 3. Настройка окружения
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Создайте файл `.env` в корне проекта и заполните его данными вашей БД и секретами (пример в .env_example и ниже):
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```
+DATABASE_URL="postgresql://username:password@localhost:5432/database-name?schema=public"
+JWT_SECRET='123456_super+secret-key'
+JWT_ACCESS_TOKEN_TTL='5m'
+JWT_REFRESH_TOKEN_TTL='3d'
+COOKIE_DOMAIN='localhost'
+NODE_ENV='development'
+PORT=3000
+```
+
+### 4. Подготовка базы данных
+
+Выполните миграции и запустите скрипт посева (seed) для заполнения БД тестовыми данными:
 
 ```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+npm run migrate
+npm run seed
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 5. Запуск приложения
 
-## Resources
+```bash
+npm run start:dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Приложение будет доступно по адресу: `http://localhost:3000`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 🔑 Данные для входа (после Seed)
 
-## Support
+При использовании скрипта заполнения базы данных создаются следующие тестовые учетные записи:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Роль          | Email             | Пароль        |
+| :------------ | :---------------- | :------------ |
+| **Модератор** | `admin@blog.com`  | `password123` |
+| **Автор**     | `author@blog.com` | `password123` |
+| **Читатель**  | `reader@blog.com` | `password123` |
 
-## Stay in touch
+## 📖 Описание API
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Методология
 
-## License
+API построено по принципам **REST**.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **Способ передачи данных**: JSON.
+- **Формат запросов**: HTTP.
+- **Аутентификация**: Bearer Token в заголовке `Authorization`.
+
+### Документация
+
+Полное описание всех эндпоинтов, моделей данных и кодов ответов доступно в интерактивном Swagger UI:
+👉 `http://localhost:3000/docs`
+
+### Основной эндпоинт
+
+`GET /api/posts` — Получение списка статей.
+**Пример запроса:**
+`GET /api/posts?page=1&limit=10&category=tech&status=PUBLISHED&sortBy=popularity`
+
+## 🛡 Роли и права доступа
+
+| Роль                      | Права                                                                                     |
+| :------------------------ | :---------------------------------------------------------------------------------------- |
+| **Читатель (READER)**     | Чтение статей, создание и редактирование собственных комментариев, постановка лайков.     |
+| **Автор (AUTHOR)**        | Все права Читателя + создание, редактирование и удаление своих статей.                    |
+| **Модератор (MODERATOR)** | Полный доступ ко всем сущностям: управление любыми статьями, комментариями и категориями. |
+
+## ✅ Валидация данных
+
+Все входящие данные проходят проверку с помощью `ValidationPipe` и библиотеки `class-validator`.
+
+**Ключевые проверки:**
+
+- **Посты**: Обязательный заголовок (до 255 симв.), содержание и корректный UUID категории.
+- **Авторизация**: Валидация формата Email и минимальная длина пароля (8 символов).
+- **Пагинация**: Поля `page` и `limit` должны быть целыми числами не меньше 1.
+- **Статусы**: Проверка на соответствие Enum (`DRAFT` / `PUBLISHED`).
+
+При ошибке валидации API возвращает статус `400 Bad Request` с детальным описанием того, какое поле заполнено неверно.
+
+## 👤 Контакты
+
+- **Разработчик**: Демаков Дмитрий Максимович
+- **Email**: dpemvr@yandex.ru
+- **GitHub**: [Ссылка на профиль](https://github.com/distinkt-dd)
+
+```
+
+```

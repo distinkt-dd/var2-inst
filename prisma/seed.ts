@@ -17,7 +17,6 @@ const pool = new Pool({
 });
 
 const adapter = new PrismaPg(pool);
-
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
@@ -25,6 +24,7 @@ async function main() {
 
   const password = await bcrypt.hash('password123', 10);
 
+  // 1. Создаем основных пользователей
   console.log('Creating users...');
   const moderator = await prisma.user.upsert({
     where: { email: 'admin@blog.com' },
@@ -56,7 +56,22 @@ async function main() {
     },
   });
 
-  // 3. Создаем категории
+  // Создаем дополнительных пользователей для лайков (чтобы было кому лайкать)
+  const extraUsers = await Promise.all(
+    Array.from({ length: 10 }).map((_, i) =>
+      prisma.user.create({
+        data: {
+          email: `user${i + 1}@test.com`,
+          password: password,
+          role: Role.READER,
+        },
+      }),
+    ),
+  );
+
+  const allUsers = [moderator, author, reader, ...extraUsers];
+
+  // 2. Создаем категории
   console.log('Creating categories...');
   const catTech = await prisma.category.upsert({
     where: { name: 'Technology' },
@@ -76,6 +91,7 @@ async function main() {
     create: { name: 'Cooking' },
   });
 
+  // 3. Создаем посты
   console.log('Creating posts...');
   const posts: any[] = [];
   for (let i = 1; i <= 15; i++) {
@@ -85,13 +101,14 @@ async function main() {
         content: `Это очень интересный контент для статьи номер ${i}. Здесь много полезной информации.`,
         status: i % 3 === 0 ? PostStatus.DRAFT : PostStatus.PUBLISHED,
         authorId: author.id,
-        categoryId: i % 2 === 0 ? catTech.id : catLife.id,
+        categoryId:
+          i % 3 === 0 ? catCooking.id : i % 2 === 0 ? catTech.id : catLife.id,
       },
     });
     posts.push(post);
   }
 
-  // 5. Добавляем комментарии
+  // 4. Добавляем комментарии
   console.log('Adding comments...');
   await prisma.comment.create({
     data: {
@@ -109,32 +126,30 @@ async function main() {
     },
   });
 
-
   console.log('Adding likes...');
-  for (let i = 0; i < 5; i++) {
-    // В реальном посеве нужны разные юзеры, но для теста создадим пару доп. юзеров или пропустим unique
-    // Чтобы не нарушить @@unique([userId, postId]), создадим доп. пользователей
+
+  for (const post of posts) {
+    const likesCount = Math.floor(Math.random() * 9);
+
+    const shuffledUsers = [...allUsers].sort(() => 0.5 - Math.random());
+
+    const usersToLike = shuffledUsers.slice(0, likesCount);
+
+    for (const user of usersToLike) {
+      await prisma.like
+        .create({
+          data: {
+            userId: user.id,
+            postId: post.id,
+          },
+        })
+        .catch((err) => {
+          if (err.code !== 'P2002') throw err;
+        });
+    }
   }
 
-  const extraUsers = await Promise.all(
-    Array.from({ length: 5 }).map((_, i) =>
-      prisma.user.create({
-        data: {
-          email: `user${i}@test.com`,
-          password: password,
-          role: Role.READER,
-        },
-      }),
-    ),
-  );
-
-  for (const user of extraUsers) {
-    await prisma.like.create({
-      data: { userId: user.id, postId: posts[0].id },
-    });
-  }
-
-  console.log('✅ База данных успешно заполнена!');
+  console.log('База данных успешно заполнена!');
   console.log('--------------------------------------------------');
   console.log('Данные для входа:');
   console.log(`Moderator: admin@blog.com / password123`);
@@ -145,7 +160,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('❌ Ошибка при посеве:', e);
+    console.error('Ошибка при посеве:', e);
     process.exit(1);
   })
   .finally(async () => {

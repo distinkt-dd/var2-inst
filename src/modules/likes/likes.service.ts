@@ -28,6 +28,10 @@ export class LikesService {
   }
 
   async delete(userId: string, postId: string) {
+    if (!userId || !postId) {
+      throw new NotFoundException('Ошибка передачи параметров!');
+    }
+
     const like = await this.prismaService.like.findFirst({
       where: { userId, postId },
     });

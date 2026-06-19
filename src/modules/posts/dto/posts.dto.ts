@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { PostStatus } from 'src/generated/prisma/enums';
+import { PostStatus } from '@prisma/client';
 
 export class CreatePostDto {
   @ApiProperty({

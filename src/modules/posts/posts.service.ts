@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { Role } from 'src/generated/prisma/enums';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto, UpdatePostDto } from './dto/posts.dto';
 
@@ -42,7 +42,15 @@ export class PostsService {
   async findById(id: string) {
     const post = await this.prismaService.post.findUnique({
       where: { id },
-      include: { author: true, category: true, comments: true },
+      include: {
+        author: {
+          select: {
+            email: true,
+          },
+        },
+        category: true,
+        comments: true,
+      },
     });
 
     if (!post) throw new NotFoundException('Пост не найден');
@@ -50,6 +58,24 @@ export class PostsService {
   }
 
   async create(data: CreatePostDto, userId: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Ошибка создания: автор не найден!');
+    }
+
+    const category = await this.prismaService.category.findUnique({
+      where: { id: data.categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException(
+        'Указанная категория не найдена! Пожалуйста, выберите существующую категорию.',
+      );
+    }
+
     return this.prismaService.post.create({
       data: { ...data, authorId: userId },
     });
@@ -65,6 +91,25 @@ export class PostsService {
     if (userRole !== Role.MODERATOR && post.authorId !== userId) {
       throw new ForbiddenException('Вы не можете изменить чужой пост!');
     }
+
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Ошибка создания: автор не найден!');
+    }
+
+    const category = await this.prismaService.category.findUnique({
+      where: { id: data.categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException(
+        'Указанная категория не найдена! Пожалуйста, выберите существующую категорию.',
+      );
+    }
+
     return this.prismaService.post.update({ where: { id }, data });
   }
 
